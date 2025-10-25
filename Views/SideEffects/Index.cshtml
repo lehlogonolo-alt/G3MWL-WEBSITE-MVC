@@ -1,0 +1,60 @@
+﻿@model IEnumerable<G3MWL.Models.SideEffect>
+
+@{
+    ViewData["Title"] = "Manage Side Effects";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<style>
+    .inline-form {
+        display: inline;
+    }
+</style>
+
+<p>
+    <a asp-action="Create" class="button">Add New Side Effect</a>
+</p>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Severity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item._id</td>
+                <td>@item.Name</td>
+                <td>@(string.IsNullOrWhiteSpace(item.Severity) ? "mild" : item.Severity)</td>
+                <td>
+                    @using (Html.BeginForm("Delete", "SideEffects", FormMethod.Post, new { @class = "inline-form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("id", item._id)
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure you want to delete @item.Name?')">
+                            Delete
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

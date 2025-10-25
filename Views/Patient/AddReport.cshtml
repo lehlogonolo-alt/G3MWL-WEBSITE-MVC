@@ -1,0 +1,164 @@
+﻿@model G3MWL.Models.WeeklyReport
+
+@{
+    var patient = ViewData["Patient"] as G3MWL.Models.Patient;
+    var lastReport = ViewData["LastReport"] as G3MWL.Models.WeeklyReport;
+    ViewData["Title"] = $"Add Report for {patient.FirstName} {patient.LastName}";
+    var sideEffectsList = ViewBag.SideEffectsList as List<SelectListItem>;
+}
+
+<div class="page-container">
+    <!-- Left column: Patient info + previous reports -->
+    <div class="left-column">
+        <div class="main-content">
+            <div>
+                <h3>Patient Details</h3>
+                <p><strong>Name:</strong> @patient.FirstName @patient.LastName</p>
+                <p><strong>Age:</strong> @patient.Age</p>
+                <p><strong>Gender:</strong> @patient.Gender</p>
+                <p><strong>Treatment Start:</strong> @patient.TreatmentStartDate.ToString("yyyy-MM-dd")</p>
+                <p><strong>Starting Weight:</strong> @patient.StartingWeight.ToString("F1") lbs</p>
+            </div>
+            <hr />
+            <div>
+                <h3>Weekly Reports</h3>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Week #</th>
+                            <th>Weight</th>
+                            <th>Dosage</th>
+                            <th>Side Effects</th>
+                            <th>Weight Lost</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in patient.WeeklyReports.OrderBy(r => r.WeekNumber))
+                        {
+                            <tr>
+                                <td>@report.WeekNumber</td>
+                                <td>
+                                    @if (report.Weight.HasValue)
+                                    {
+                                        @($"{report.Weight.Value:F1} lbs")
+                                    }
+                                    else
+                                    {
+                                        @("-")
+                                    }
+                                </td>
+                                <td>@report.Dosage</td>
+                                <td>@report.SideEffects</td>
+                                <td>
+                                    @if (double.TryParse(report.Results, out var r))
+                                    {
+                                        @($"{r:F1} lbs")
+                                    }
+                                    else
+                                    {
+                                        @("-")
+                                    }
+                                </td>
+                                <td>@report.Notes</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: New report form -->
+    <div class="right-column">
+        <div class="main-content">
+            <h4>New Report (Week @Model.WeekNumber)</h4>
+            <hr />
+            <form asp-action="AddReport" asp-route-id="@patient._id" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="WeekNumber" />
+
+                <div class="form-group">
+                    <label asp-for="Weight">Current Weight (lbs)</label>
+                    <input asp-for="Weight" id="currentWeight" class="form-control" type="text"
+                           value="@(Model.Weight.HasValue ? Model.Weight.Value.ToString("F1") : "")"
+                           data-last-weight="@(lastReport?.Weight ?? patient.StartingWeight)" />
+                    <span asp-validation-for="Weight" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Dosage">Dosage (mg)</label>
+                    <input asp-for="Dosage" id="dosage" class="form-control" type="text" />
+                    <span asp-validation-for="Dosage" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Results">Weight Lost This Week (lbs)</label>
+                    <input asp-for="Results" id="resultsScore" class="form-control" type="text" readonly />
+                    <span asp-validation-for="Results" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Side Effects</label>
+                    <select asp-for="SideEffects" asp-items="@sideEffectsList" class="form-control" id="sideEffectsSelect" multiple="multiple"></select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Notes"></label>
+                    <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
+                </div>
+
+                <hr />
+                <div class="form-group d-flex gap-2">
+                    <input type="submit" value="Save Report" class="btn btn-primary" />
+                    <a asp-action="Report" asp-route-id="@patient._id" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-container {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .left-column {
+        flex: 3;
+    }
+
+    .right-column {
+        flex: 2;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(function () {
+            const weightInput = $('#currentWeight');
+            const resultsInput = $('#resultsScore');
+
+            function calculateWeightLoss() {
+                const lastWeight = parseFloat(weightInput.data('last-weight'));
+                const currentWeight = parseFloat(weightInput.val());
+                if (!isNaN(lastWeight) && !isNaN(currentWeight) && lastWeight > 0) {
+                    resultsInput.val((lastWeight - currentWeight).toFixed(1));
+                } else {
+                    resultsInput.val('');
+                }
+            }
+
+            weightInput.on('input', calculateWeightLoss);
+            calculateWeightLoss();
+
+            $('#sideEffectsSelect').select2({
+                placeholder: "Search and select side effects...",
+                width: '100%'
+            });
+        });
+    </script>
+}
+ 
+

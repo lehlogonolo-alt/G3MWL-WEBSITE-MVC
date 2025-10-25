@@ -1,0 +1,126 @@
+﻿@model G3MWL.Models.UserRegister
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(to right, #007bff, #00c6ff);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .auth-card {
+        background-color: #fff;
+        color: #333;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 420px;
+        box-sizing: border-box;
+    }
+
+        .auth-card h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .auth-card p {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+    .form-control {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn {
+        width: 100%;
+        font-weight: 600;
+        padding: 10px;
+        border-radius: 6px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+    .link {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+</style>
+
+<div class="auth-card">
+    <h2>Welcome to the G3MWL Trial Management System</h2>
+    <p>Please register to continue.</p>
+
+    <form asp-action="Register" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" type="email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword" class="form-control" type="password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn">Register</button>
+    </form>
+
+    <a asp-action="Login" class="link">Already registered? Login here</a>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
+

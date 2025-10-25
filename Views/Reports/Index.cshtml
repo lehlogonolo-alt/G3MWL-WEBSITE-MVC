@@ -1,0 +1,110 @@
+﻿@model List<G3MWL.Models.Patient>
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<style>
+    .report-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+        .report-container h2 {
+            font-size: 1.6rem;
+            margin-bottom: 30px;
+            color: #333;
+            text-align: center;
+        }
+
+    .search-bar {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+        .search-bar input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .search-bar button {
+            padding: 8px 16px;
+            margin-left: 8px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+            .search-bar button:hover {
+                background-color: #0056b3;
+            }
+
+    .patient-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .patient-info {
+        font-size: 1rem;
+        color: #555;
+    }
+
+    .button {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+<div class="report-container">
+    <h2>Patient Reports</h2>
+
+    <div class="search-bar">
+        @using (Html.BeginForm("Index", "Reports", FormMethod.Get))
+        {
+            <input type="text" name="searchTerm" placeholder="Search by patient name..." />
+            <button type="submit">Search</button>
+        }
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var patient in Model)
+        {
+            <div class="patient-card">
+                <div class="patient-info">
+                    <strong>@patient.FirstName</strong><br />
+                    <small>ID: @patient._id</small>
+                </div>
+                <a asp-action="Report" asp-route-id="@patient._id" class="button">View patient summary</a>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No patients found.</p>
+    }
+</div>
+
+
+
+

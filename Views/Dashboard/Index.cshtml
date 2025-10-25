@@ -1,0 +1,150 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    var patientCount = ViewBag.PatientCount ?? 0;
+    var averageWeightLoss = ViewBag.AverageWeightLossPercentage != null
+        ? Convert.ToDouble(ViewBag.AverageWeightLossPercentage)
+        : 0.0;
+    var userName = ViewBag.UserName ?? "User";
+    
+}
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding-top: 60px;
+    }
+
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 90%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .welcome-message {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .last-seen {
+        font-size: 0.9rem;
+        color: #777;
+        margin-bottom: 30px;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        width: 100%;
+    }
+
+    .metric-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+    }
+
+    .metric-card h5 {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    .metric-card p {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #007bff;
+        margin: 0;
+    }
+
+    .suggested-activity {
+        margin-top: 60px;
+        width: 100%;
+    }
+
+    .suggested-activity h4 {
+        font-size: 1.3rem;
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .activity-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        text-align: center;
+    }
+
+    .activity-card p {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    .activity-card a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .activity-card a:hover {
+        background-color: #0056b3;
+    }
+
+     (max-width: 568px) {
+        .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="welcome-message">
+        Welcome back, @userName 👋.
+    </div>
+    
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <h5>Patients Added</h5>
+            <p>@patientCount</p>
+        </div>
+        <div class="metric-card">
+            <h5>Average Weight Loss</h5>
+            <p>@averageWeightLoss.ToString("F1")%</p>
+        </div>
+    </div>
+
+    <div class="suggested-activity">
+        <h4>Suggested Activity</h4>
+        <div class="activity-card">
+            <p>Review the latest patient trends and side effect reports to stay informed.</p>
+            <a href="/Reports">View Report</a>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+

@@ -1,0 +1,106 @@
+﻿@model List<G3MWL.Models.Patient>
+
+@{
+    ViewData["Title"] = "Patient Records";
+}
+<style>
+    .inline-form {
+        display: inline;
+    }
+
+    .danger-button {
+        background-color: #dc3545;
+        color: white;
+        margin-left: 5px;
+    }
+
+
+</style>
+<!-- Main container for search and table -->
+<div class="main-display-container">
+
+    <!-- Table Content Area -->
+    <div class="table-container">
+        <div class="main-content">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewData["IdSortParm"]"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">ID</a>
+                        </th>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewData["NameSortParm"]"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">Patient name</a>
+                        </th>
+                        <th>Age + Gender</th>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewData["DateSortParm"]"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">Treatment Start date</a>
+                        </th>
+                        <th>Starting weight</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var patient in Model)
+                    {
+                        <tr>
+                            <td>@patient._id</td>
+                            <td>@patient.FirstName @patient.LastName</td>
+                            <td>@patient.Age @patient.Gender.Substring(0, 1)</td>
+                            <td>@patient.TreatmentStartDate.ToString("yyyy-MM-dd")</td>
+                            <td>@patient.StartingWeight lbs</td>
+                            <td>
+                                <a asp-action="Report" asp-route-id="@patient._id" class="button">View Report</a>
+
+                                @using (Html.BeginForm("Delete", "Patient", FormMethod.Post, new { @class = "inline-form" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("id", patient._id)
+                                    <button type="submit" class="button danger-button"
+                                            onclick="return confirm('Are you sure you want to delete @patient.FirstName @patient.LastName?')">
+                                        Delete
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+            <a asp-action="Create" class="button">New Record</a>
+        </div>
+    </div>
+
+    <!-- Search Panel Area -->
+    <div class="search-container">
+        <div class="main-content">
+            <h4>Search Patients</h4>
+            <form asp-action="Index" method="get">
+                <div class="form-group">
+                    <label>Search by ID, First, or Last Name:</label>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Search" class="button" />
+                    <a asp-action="Index" class="button" style="background-color: #6c757d;">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>

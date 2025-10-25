@@ -1,0 +1,160 @@
+﻿@model G3MWL.Models.Patient
+
+@{
+    ViewData["Title"] = "Patient Report";
+
+    var mostRecentReport = Model.WeeklyReports?.Where(r => r.Weight.HasValue).OrderByDescending(r => r.WeekNumber).FirstOrDefault();
+    double? totalWeightLost = null;
+    double? percentageWeightLost = null;
+
+    if (mostRecentReport != null)
+    {
+        totalWeightLost = Model.StartingWeight - mostRecentReport.Weight.Value;
+        if (Model.StartingWeight > 0)
+        {
+            percentageWeightLost = (totalWeightLost / Model.StartingWeight) * 100;
+        }
+    }
+
+    double? previousWeight = Model.StartingWeight;
+}
+
+<style>
+    .report-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+        .report-header h2 {
+            font-size: 1.6rem;
+            color: #333;
+            margin: 0;
+        }
+
+    .export-button {
+        padding: 8px 16px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .export-button:hover {
+            background-color: #218838;
+        }
+
+    .report-container p {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 12px;
+    }
+
+    .report-container strong {
+        color: #333;
+    }
+
+    .weekly-section {
+        margin-top: 30px;
+    }
+
+        .weekly-section h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+
+    .weekly-report {
+        background-color: #f1f5ff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+        .weekly-report ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .weekly-report li {
+            margin-bottom: 5px;
+        }
+</style>
+
+<div class="report-container">
+    <div class="report-header">
+        <h2>Patient Report</h2>
+        <form asp-action="Export" asp-route-id="@Model._id" method="post">
+            <button type="submit" class="export-button">Export as PDF</button>
+        </form>
+    </div>
+
+    <p><strong>Full Name:</strong> @Model.FirstName @Model.LastName</p>
+    <p><strong>ID:</strong> @Model._id</p>
+    <p><strong>Age:</strong> @Model.Age</p>
+    <p><strong>Gender:</strong> @Model.Gender</p>
+    <p><strong>Treatment Start Date:</strong> @Model.TreatmentStartDate.ToString("dd MMM yyyy")</p>
+    <p><strong>Starting Weight:</strong> @Model.StartingWeight:F1 kg</p>
+    <p>
+        <strong>Total Weight Lost:</strong>
+        @(totalWeightLost.HasValue ? $"{totalWeightLost.Value:F1} kg ({percentageWeightLost:F1}%)" : "N/A")
+    </p>
+
+    @if (Model.WeeklyReports != null && Model.WeeklyReports.Any())
+    {
+        <div class="weekly-section">
+            <h4>Weekly Reports</h4>
+            @foreach (var report in Model.WeeklyReports.OrderBy(r => r.WeekNumber))
+            {
+                double? weightLost = (previousWeight.HasValue && report.Weight.HasValue)
+                ? previousWeight.Value - report.Weight.Value
+                : null;
+
+                previousWeight = report.Weight;
+
+                <div class="weekly-report">
+                    <p><strong>Week:</strong> @report.WeekNumber</p>
+                    <p><strong>Weight:</strong> @(report.Weight.HasValue ? $"{report.Weight:F1} kg" : "N/A")</p>
+                    <p><strong>Dosage:</strong> @report.Dosage</p>
+                    <p><strong>Side Effects:</strong></p>
+                    @if (report.SideEffects != null && report.SideEffects.Any())
+                    {
+                        <ul>
+                            @foreach (var effect in report.SideEffects)
+                            {
+                                <li>@effect</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p><em>No side effects reported.</em></p>
+                    }
+                    <p><strong>Weight Lost:</strong> @(weightLost.HasValue ? $"{weightLost.Value:F1} kg" : "N/A")</p>
+                    <p><strong>Notes:</strong> @report.Notes</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p><em>No weekly reports available.</em></p>
+    }
+</div>
+
+
+

@@ -1,0 +1,121 @@
+﻿@model G3MWL.Models.Patient
+
+@{
+    ViewData["Title"] = "Patient Report";
+
+    var mostRecentReport = Model.WeeklyReports?.Where(r => r.Weight.HasValue).OrderByDescending(r => r.WeekNumber).FirstOrDefault();
+    double? totalWeightLost = null;
+    double? percentageWeightLost = null;
+
+    if (mostRecentReport != null)
+    {
+        totalWeightLost = Model.StartingWeight - mostRecentReport.Weight.Value;
+        if (Model.StartingWeight > 0)
+        {
+            percentageWeightLost = (totalWeightLost / Model.StartingWeight) * 100;
+        }
+    }
+
+    string weightLostDisplay = "N/A";
+    if (totalWeightLost.HasValue)
+    {
+        weightLostDisplay = $"{totalWeightLost.Value:F1} lbs";
+        if (percentageWeightLost.HasValue)
+        {
+            weightLostDisplay += $" ({percentageWeightLost.Value:F1}%)";
+        }
+    }
+
+    double? previousWeight = Model.StartingWeight;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">@ViewData["Title"]</h2>
+
+    <div class="row">
+        <!-- Left Column: Patient Info + Reports -->
+        <div class="col-lg-8">
+            <!-- Patient Details -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Patient Details</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> @Model.FirstName @Model.LastName</p>
+                    <p><strong>Age:</strong> @Model.Age</p>
+                    <p><strong>Gender:</strong> @Model.Gender</p>
+                    <p><strong>Treatment Start:</strong> @Model.TreatmentStartDate:yyyy-MM-dd</p>
+                    <p><strong>Starting Weight:</strong> @Model.StartingWeight:F1 lbs</p>
+                    <p><strong>Total Weight Lost:</strong> @weightLostDisplay</p>
+                </div>
+            </div>
+
+            <!-- Weekly Reports -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0">Weekly Reports</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Week #</th>
+                                <th>Weight</th>
+                                <th>Dosage</th>
+                                <th>Side Effects</th>
+                                <th>Weight Lost</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.WeeklyReports != null && Model.WeeklyReports.Any())
+                            {
+                                foreach (var report in Model.WeeklyReports.OrderBy(r => r.WeekNumber))
+                                {
+                                    double? weightLost = (previousWeight.HasValue && report.Weight.HasValue)
+                                    ? previousWeight.Value - report.Weight.Value
+                                    : null;
+
+                                    previousWeight = report.Weight;
+
+                                    <tr>
+                                        <td>@report.WeekNumber</td>
+                                        <td>@(report.Weight.HasValue ? $"{report.Weight.Value:F1} lbs" : "-")</td>
+                                        <td>@(string.IsNullOrWhiteSpace(report.Dosage) ? "-" : report.Dosage)</td>
+                                        <td>
+                                            @(report.SideEffects != null && report.SideEffects.Any()
+                                                ? string.Join(", ", report.SideEffects)
+                                                : "-")
+                                        </td>
+                                        <td>@(weightLost.HasValue ? $"{weightLost.Value:F1} lbs" : "-")</td>
+                                        <td>@(string.IsNullOrWhiteSpace(report.Notes) ? "-" : report.Notes)</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No reports available.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <a asp-action="AddReport" asp-route-id="@Model._id" class="btn btn-success">Add New Report</a>
+                <a asp-action="Index" class="btn btn-outline-secondary">Back to All Records</a>
+            </div>
+        </div>
+
+        <!-- Right Column: Reserved -->
+        <div class="col-lg-4">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <p class="text-muted">This space is reserved for future features like charts, summaries, or alerts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
